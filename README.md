@@ -22,6 +22,13 @@ For Arch Linux, use:
 sudo pacman -S mpfr
 ```
 
+For MacOS, Install these ependencies:
+
+
+```bash
+brew install mpfr gmp
+```
+
 ## Compilation
 
 To compile the program, navigate to the directory containing the `GaussPi_CPP.cpp` file and run the following command:
@@ -32,6 +39,29 @@ g++ -o PI GaussPi_CPP.cpp -lmpfr -lm
 
 This will create an executable file called `PI`.
 
+### For MacOS:
+
+```bash
+g++ -o PI GaussPi_CPP.cpp -I/opt/homebrew/Cellar/gmp/6.3.0/include -I/opt/homebrew/Cellar/mpfr/4.2.1/include -L/opt/homebrew/Cellar/gmp/6.3.0/lib -L/opt/homebrew/Cellar/mpfr/4.2.1/lib -lgmp -lmpfr
+```
+
+Or using `pkg-config` for automatic flag management:
+
+```bash
+g++ -o PI GaussPi_CPP.cpp $(pkg-config --cflags gmp mpfr) $(pkg-config --libs gmp mpfr)
+```
+
+To Get the flags:
+
+```bash
+brew install pkg-config
+```
+
+```bash
+pkg-config --cflags gmp mpfr
+pkg-config --libs gmp mpfr
+```
+
 ## Usage
 
 You can then run the program with the following command:
@@ -41,6 +71,9 @@ You can then run the program with the following command:
 ```
 
 where n is the number of decimal points you want for pi (default: 10).
+
+
+
 
 If you want to see the help message, use the following command:
 
