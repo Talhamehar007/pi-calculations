@@ -1,135 +1,158 @@
 # pi-calculations
 
-A C++ implementation of the Gauss-Legendre algorithm to calculate pi with user-specified precision.
+High-precision π calculators in C++ using two different algorithms:
 
-## Dependencies
+- `GaussPi_CPP.cpp` — Gauss-Legendre / Brent-Salamin iteration using MPFR
+- `pi_chudnovsky.cpp` — Chudnovsky series with binary splitting using GMP
 
-To run the program, you need to have the mpfr library installed on your system. To install it on Debian and Ubuntu, use the following command:
+Both programs print π to the requested number of digits after the decimal point.
+
+## Algorithms
+
+### 1. Gauss-Legendre
+
+- Uses arbitrary-precision floating-point arithmetic via MPFR
+- Converges quadratically, so the number of correct digits roughly doubles each iteration
+- Good general-purpose high-precision approach
+
+### 2. Chudnovsky
+
+- Uses the Chudnovsky series with binary splitting
+- Uses arbitrary-precision integer arithmetic via GMP / GMPXX
+- Typically faster for very large digit counts
+
+## Requirements
+
+Install the libraries required by the implementation you want to build.
+
+### macOS (Homebrew)
 
 ```bash
-sudo apt-get install libmpfr-dev
+brew install gmp mpfr pkg-config
 ```
 
-For CentOS and Fedora, use:
+### Ubuntu / Debian
 
 ```bash
-sudo dnf install mpfr-devel
+sudo apt-get update
+sudo apt-get install -y libgmp-dev libmpfr-dev pkg-config g++
 ```
 
-For Arch Linux, use:
+### Fedora
 
 ```bash
-sudo pacman -S mpfr
+sudo dnf install gmp-devel mpfr-devel pkgconf-pkg-config gcc-c++
 ```
 
-For MacOS, Install these ependencies:
-
+### Arch Linux
 
 ```bash
-brew install mpfr gmp
+sudo pacman -S gmp mpfr pkgconf gcc
 ```
 
-## Compilation
+## Build
 
-To compile the program, navigate to the directory containing the `GaussPi_CPP.cpp` file and run the following command:
+This repo now uses descriptive binary names in the `build/` directory:
+
+- `build/pi_gauss_legendre`
+- `build/pi_chudnovsky`
+
+Create the build directory first:
 
 ```bash
-g++ -o PI GaussPi_CPP.cpp -lmpfr -lm
+mkdir -p build
 ```
 
-This will create an executable file called `PI`.
-
-### For MacOS:
+### Build both binaries with `pkg-config`
 
 ```bash
-g++ -o PI GaussPi_CPP.cpp -I/opt/homebrew/Cellar/gmp/6.3.0/include -I/opt/homebrew/Cellar/mpfr/4.2.1/include -L/opt/homebrew/Cellar/gmp/6.3.0/lib -L/opt/homebrew/Cellar/mpfr/4.2.1/lib -lgmp -lmpfr
+c++ -O3 -std=c++17 \
+  GaussPi_CPP.cpp \
+  $(pkg-config --cflags --libs gmp mpfr) \
+  -o build/pi_gauss_legendre
+
+c++ -O3 -std=c++17 \
+  pi_chudnovsky.cpp \
+  $(pkg-config --cflags --libs gmpxx) \
+  -o build/pi_chudnovsky
 ```
 
-Or using `pkg-config` for automatic flag management:
+### macOS Homebrew build commands
+
+If you prefer explicit Homebrew paths instead of `pkg-config`:
 
 ```bash
-g++ -o PI GaussPi_CPP.cpp $(pkg-config --cflags gmp mpfr) $(pkg-config --libs gmp mpfr)
-```
+clang++ -O3 -std=c++17 \
+  -I$(brew --prefix gmp)/include \
+  -I$(brew --prefix mpfr)/include \
+  -L$(brew --prefix gmp)/lib \
+  -L$(brew --prefix mpfr)/lib \
+  GaussPi_CPP.cpp -lmpfr -lgmp \
+  -o build/pi_gauss_legendre
 
-To Get the flags:
-
-```bash
-brew install pkg-config
-```
-
-```bash
-pkg-config --cflags gmp mpfr
-pkg-config --libs gmp mpfr
+clang++ -O3 -std=c++17 \
+  -I$(brew --prefix gmp)/include \
+  -L$(brew --prefix gmp)/lib \
+  pi_chudnovsky.cpp -lgmpxx -lgmp \
+  -o build/pi_chudnovsky
 ```
 
 ## Usage
 
-You can then run the program with the following command:
+### Gauss-Legendre
 
 ```bash
-./PI [n]
+./build/pi_gauss_legendre 100
 ```
 
-where n is the number of decimal points you want for pi (default: 10).
+Example output:
 
+```text
+3.1415926535...
+```
 
-
-
-If you want to see the help message, use the following command:
+Help:
 
 ```bash
-./PI --help
+./build/pi_gauss_legendre --help
 ```
 
-- Calculate pi to 50 decimal places:
-
-```code
-./PI 50
-```
-
-- Calculate pi to 100 decimal places:
+### Chudnovsky
 
 ```bash
-./PI 100
+./build/pi_chudnovsky 100
 ```
 
-- Calculate pi to the default 10 decimal places:
+Example output:
 
-```bash
-./PI
+```text
+3.1415926535...
 ```
 
-If you want to see the help message, use the following command:
+## Accuracy
 
-```bash
-./PI --help
-```
+Both implementations were checked against MPFR's `mpfr_const_pi` output and matched exactly for:
 
-The `--help` option displays the following help message:
+- `1`
+- `2`
+- `5`
+- `10`
+- `50`
+- `100`
+- `250`
+- `500`
+- `1000`
+- `5000`
+- `10000`
 
-```bash
-Usage: ./PI [n] [--help]
-n: The number of decimal points you want for pi (default: 10)
---help: Display this help message
-```
+These counts refer to digits after the decimal point.
 
-## Linux Tip:
+## Notes
 
-You can move this binary to `~/.local/bin` to run this file from anywhere from terminal:
-
-```bash
-cp ./PI ~/.localbin
-```
-
-Then you can run like this:
-
-![image](https://user-images.githubusercontent.com/57623612/225383144-d23b0521-96ee-4e89-a251-57e12a8a54c2.png)
-
-
-## Acknowledgements
-
-The Gauss-Legendre algorithm for computing pi was developed by Carl Friedrich Gauss and is one of the fastest known algorithms for calculating pi to high precision.
+- `GaussPi_CPP.cpp` requires both GMP and MPFR at link time
+- `pi_chudnovsky.cpp` requires GMP / GMPXX at link time
+- Build artifacts are ignored via `.gitignore` under `build/`
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0. See `LICENSE` for details.
