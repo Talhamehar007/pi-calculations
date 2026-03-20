@@ -63,6 +63,26 @@ Create the build directory first:
 mkdir -p build
 ```
 
+### Build both binaries with `build.sh`
+
+```bash
+./build.sh
+```
+
+The script supports common macOS and Linux setups:
+
+- Uses `pkg-config` when available
+- Falls back to Homebrew paths on macOS
+- Falls back to standard system linker paths on Linux and other Unix-like environments
+
+Optional overrides:
+
+```bash
+CXX=clang++ ./build.sh
+CPPFLAGS="-I/custom/include" LDFLAGS="-L/custom/lib" ./build.sh
+BUILD_DIR=out ./build.sh
+```
+
 ### Build both binaries with `pkg-config`
 
 ```bash
