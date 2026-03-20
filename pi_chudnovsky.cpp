@@ -1,3 +1,5 @@
+#include "digit_count.h"
+
 #include <gmpxx.h>
 
 #include <cmath>
@@ -127,10 +129,18 @@ int main(int argc, char* argv[]) {
     try {
         if (argc < 2) {
             std::cerr << "Usage: " << argv[0] << " <digits>\n";
+            std::cerr << "Accepted formats: 100, 1,000, 1_000, 1k, 1M, 1B\n";
             return 1;
         }
 
-        std::int64_t digits = std::stoll(argv[1]);
+        if (std::string(argv[1]) == "--help") {
+            std::cout << "Usage: " << argv[0] << " <digits>\n";
+            std::cout << "digits: Number of decimal digits after the decimal point\n";
+            std::cout << "Accepted formats: 100, 1,000, 1_000, 1k, 1M, 1B\n";
+            return 0;
+        }
+
+        std::int64_t digits = parse_digit_count(argv[1]);
         if (digits < 1) {
             throw std::runtime_error("digits must be >= 1");
         }

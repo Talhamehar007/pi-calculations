@@ -119,6 +119,18 @@ clang++ -O3 -std=c++17 \
 
 ## Usage
 
+Both binaries accept digit counts in plain or grouped forms, including suffixes:
+
+- `100`
+- `1,000`
+- `1_000`
+- `1,`
+- `1k`, `100k`
+- `1M`
+- `1B`
+
+Suffixes are case-insensitive: `k`, `m`, and `b` are equivalent to `K`, `M`, and `B`.
+
 ### Gauss-Legendre
 
 ```bash
